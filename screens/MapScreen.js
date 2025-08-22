@@ -1,8 +1,9 @@
 // screens/MapScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet, Platform, Text } from 'react-native';
-import { AppleMaps, GoogleMaps } from 'expo-maps';
+import { StyleSheet, View, ActivityIndicator, Text, Image } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
+import GUpin from '../assets/GUpin.png'; // asegúrate que existe en /assets
 
 export default function MapScreen() {
   const [pos, setPos] = useState(null);
@@ -13,14 +14,13 @@ export default function MapScreen() {
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setPermDenied(true);
-          return;
-        }
-        const { coords } = await Location.getCurrentPositionAsync({});
+        if (status !== 'granted') { setPermDenied(true); return; }
+        const { coords } = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
         setPos({ latitude: coords.latitude, longitude: coords.longitude });
       } catch (e) {
-        console.warn('Ubicación no disponible', e);
+        console.warn('No se pudo obtener ubicación', e);
       } finally {
         setLoading(false);
       }
@@ -31,7 +31,7 @@ export default function MapScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
-        <Text style={styles.msg}>Cargando mapa…</Text>
+        <Text style={{ marginTop: 8 }}>Obteniendo tu ubicación…</Text>
       </View>
     );
   }
@@ -39,56 +39,38 @@ export default function MapScreen() {
   if (!pos) {
     return (
       <View style={styles.center}>
-        <Text style={styles.msg}>
-          {permDenied ? 'Permiso de ubicación denegado' : 'No se pudo obtener tu ubicación'}
+        <Text style={{ textAlign: 'center' }}>
+          {permDenied
+            ? 'Permiso de ubicación denegado. Actívalo en Ajustes → Apps → Glotón Urbano → Permisos.'
+            : 'No se pudo obtener tu ubicación.'}
         </Text>
       </View>
     );
   }
 
-  // Marcadores de ejemplo
-  const markers = [
-    { id: 'yo', title: 'Estás aquí', coordinates: pos },
-    { id: '1', title: 'Alita Mía', coordinates: { latitude: 20.5222, longitude: -99.8931 }, snippet: '4.8★' },
-    { id: '2', title: 'Taquitos El Güero', coordinates: { latitude: 20.5240, longitude: -99.8900 }, snippet: '4.5★' },
-    { id: '3', title: 'Pizza La Toscana', coordinates: { latitude: 20.5205, longitude: -99.8960 }, snippet: '4.9★' }
-  ];
-
-  if (Platform.OS === 'ios') {
-    return (
-      <AppleMaps.View
-        style={styles.map}
-        cameraPosition={{ coordinates: pos, zoom: 14 }}
-        annotations={markers.map(m => ({
-          id: m.id,
-          title: m.title,
-          coordinates: m.coordinates
-        }))}
-      />
-    );
-  }
+  const region = {
+    latitude: pos.latitude,
+    longitude: pos.longitude,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  };
 
   return (
-    <GoogleMaps.View
+    <MapView
       style={styles.map}
-      cameraPosition={{ coordinates: pos, zoom: 14 }}
-      markers={markers.map(m => ({
-        id: m.id,
-        title: m.title,
-        snippet: m.snippet,
-        coordinates: m.coordinates
-      }))}
-      onMarkerClick={(marker) => {
-        // Aquí podrías navegar al detalle: navigation.navigate('Detail', { id: marker.id })
-        // Por ahora, solo mostramos en consola:
-        console.log('Marker clicado:', marker.title);
-      }}
-    />
+      provider={PROVIDER_GOOGLE}
+      initialRegion={region}
+      showsUserLocation={false}
+    >
+      {/* Marker con imagen personalizada */}
+      <Marker coordinate={pos} anchor={{ x: 0.5, y: 1 }}>
+        <Image source={GUpin} style={{ width: 40, height: 40 }} />
+      </Marker>
+    </MapView>
   );
 }
 
 const styles = StyleSheet.create({
   map: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  msg: { marginTop: 8 }
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
 });
