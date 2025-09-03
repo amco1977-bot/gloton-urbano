@@ -13,7 +13,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sporch77.glotonurbano",
+      "config": {
+        "googleMapsApiKey": "AIzaSyDjTXD-6b7pzSLNHBrrbDoMEG9RdYWQARw"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Permite que Glotón Urbano use tu ubicación",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Permite que Glotón Urbano use tu ubicación",
+        "NSLocationAlwaysUsageDescription": "Permite que Glotón Urbano use tu ubicación"
+      }
     },
     "android": {
       "package": "com.sporch77.glotonurbano",
@@ -50,7 +59,8 @@
           "locationPermission": "Permite que Glotón Urbano use tu ubicación"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-secure-store"
     ]
   }
 }
