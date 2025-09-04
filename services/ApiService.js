@@ -40,16 +40,20 @@ class ApiService {
   /**
    * Get headers for API requests
    * @param {boolean} includeAuth - Whether to include authorization header
+   * @param {string} customToken - Custom token to use instead of the stored token
    * @returns {Object} Headers object
    */
-  getHeaders(includeAuth = true) {
+  getHeaders(includeAuth = true, customToken = null) {
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
 
-    if (includeAuth && this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    if (includeAuth) {
+      const token = customToken || this.token;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
     }
 
     return headers;
@@ -65,7 +69,7 @@ class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const config = {
       method: 'GET',
-      headers: this.getHeaders(options.requireAuth !== false),
+      headers: this.getHeaders(options.requireAuth !== false, options.customToken),
       ...options,
     };
 
@@ -80,7 +84,7 @@ class ApiService {
       headers: config.headers,
       body: options.body ? JSON.stringify(options.body, null, 2) : 'No body',
       requireAuth: options.requireAuth !== false,
-      hasToken: !!this.token,
+      hasToken: !!(options.customToken || this.token),
     });
 
     try {
@@ -439,6 +443,7 @@ class ApiService {
       method: 'POST',
       body: eventData,
       requireAuth: true, // Analytics endpoints require authentication
+      customToken: 'analytics_analytics_eWFxeu7aM0pG2KP4LceuOqho0l5z3L5NE3lLOlhm',
     });
   }
 

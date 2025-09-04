@@ -5,7 +5,7 @@
 
 const environments = {
   development: {
-    baseURL: 'http://192.168.5.32:8000/api/v1',
+    baseURL: 'https://gu.mindware.com.mx/api/v1',
     timeout: 10000,
     retryAttempts: 3,
   },
@@ -15,7 +15,7 @@ const environments = {
     retryAttempts: 3,
   },
   production: {
-    baseURL: 'https://gu.mindware.com.mx  /api/v1',
+    baseURL: 'https://gu.mindware.com.mx/api/v1',
     timeout: 20000,
     retryAttempts: 2,
   },

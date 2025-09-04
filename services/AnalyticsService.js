@@ -93,7 +93,9 @@ class AnalyticsService {
         stack: error.stack,
         timestamp: new Date().toISOString(),
       });
-      throw error;
+      // Don't throw the error - just log it and return null
+      // This prevents analytics failures from breaking the app flow
+      return null;
     }
   }
 
