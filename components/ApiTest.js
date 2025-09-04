@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import apiService from '../services';
 import storageService from '../services/StorageService';
-import * as SecureStore from 'expo-secure-store';
 
 export default function ApiTest() {
   const [isLoading, setIsLoading] = useState(false);
@@ -81,26 +80,8 @@ export default function ApiTest() {
 
   const testSecureStore = async () => {
     try {
-      // Test SecureStore directly
-      const testKey = 'secure_store_test';
-      const testValue = 'secure_test_value';
-      
-      // Test set
-      await SecureStore.setItemAsync(testKey, testValue);
-      setTestResult(prev => prev + '✅ SecureStore setItem working\n');
-      
-      // Test get
-      const retrieved = await SecureStore.getItemAsync(testKey);
-      if (retrieved === testValue) {
-        setTestResult(prev => prev + '✅ SecureStore getItem working\n');
-      } else {
-        setTestResult(prev => prev + '❌ SecureStore getItem failed\n');
-      }
-      
-      // Test delete
-      await SecureStore.deleteItemAsync(testKey);
-      setTestResult(prev => prev + '✅ SecureStore deleteItem working\n');
-      
+      setTestResult(prev => prev + '⚠️ SecureStore not available in development build\n');
+      setTestResult(prev => prev + 'Using in-memory storage instead\n');
     } catch (error) {
       setTestResult(prev => prev + `❌ SecureStore test failed: ${error.message}\n`);
     }

@@ -7,7 +7,7 @@
 class ApiService {
   constructor() {
     // Base URL - can be configured for different environments
-    this.baseURL = 'https://api.gu-system.com/api/v1';
+    this.baseURL = 'https://gu.mindware.com.mx/api/v1';
     this.token = null;
     this.isAuthenticated = false;
   }

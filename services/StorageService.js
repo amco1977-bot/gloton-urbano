@@ -1,9 +1,7 @@
 /**
  * Storage Service
- * Handles local storage operations for tokens and user data using Expo SecureStore
+ * Simple in-memory storage for development
  */
-
-import * as SecureStore from 'expo-secure-store';
 
 class StorageService {
   constructor() {
@@ -17,42 +15,19 @@ class StorageService {
       appSettings: 'gu_app_settings',
     };
     
-    // Check if SecureStore is available
-    this.isSecureStoreAvailable = false;
-    this.checkSecureStoreAvailability();
+    // In-memory storage
+    this.memoryStorage = new Map();
   }
 
   /**
-   * Check if SecureStore is available
-   */
-  async checkSecureStoreAvailability() {
-    try {
-      // Try to set a test value
-      await SecureStore.setItemAsync('test_availability', 'test');
-      await SecureStore.deleteItemAsync('test_availability');
-      this.isSecureStoreAvailable = true;
-      console.log('SecureStore is available');
-    } catch (error) {
-      this.isSecureStoreAvailable = false;
-      console.warn('SecureStore not available, using fallback:', error.message);
-    }
-  }
-
-  /**
-   * Store a value in SecureStore
+   * Store a value in memory
    * @param {string} key - Storage key
    * @param {any} value - Value to store
    * @returns {Promise} Storage result
    */
   async setItem(key, value) {
     try {
-      if (!this.isSecureStoreAvailable) {
-        console.warn('SecureStore not available, cannot store:', key);
-        return false;
-      }
-
-      const jsonValue = JSON.stringify(value);
-      await SecureStore.setItemAsync(key, jsonValue);
+      this.memoryStorage.set(key, value);
       return true;
     } catch (error) {
       console.error('Storage setItem error:', error);
@@ -61,19 +36,13 @@ class StorageService {
   }
 
   /**
-   * Retrieve a value from SecureStore
+   * Retrieve a value from memory
    * @param {string} key - Storage key
    * @returns {Promise<any>} Stored value
    */
   async getItem(key) {
     try {
-      if (!this.isSecureStoreAvailable) {
-        console.warn('SecureStore not available, cannot retrieve:', key);
-        return null;
-      }
-
-      const jsonValue = await SecureStore.getItemAsync(key);
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
+      return this.memoryStorage.get(key) || null;
     } catch (error) {
       console.error('Storage getItem error:', error);
       return null;
@@ -81,18 +50,13 @@ class StorageService {
   }
 
   /**
-   * Remove a value from SecureStore
+   * Remove a value from memory
    * @param {string} key - Storage key
    * @returns {Promise} Removal result
    */
   async removeItem(key) {
     try {
-      if (!this.isSecureStoreAvailable) {
-        console.warn('SecureStore not available, cannot remove:', key);
-        return false;
-      }
-
-      await SecureStore.deleteItemAsync(key);
+      this.memoryStorage.delete(key);
       return true;
     } catch (error) {
       console.error('Storage removeItem error:', error);
@@ -106,8 +70,7 @@ class StorageService {
    */
   async clear() {
     try {
-      const promises = Object.values(this.keys).map(key => this.removeItem(key));
-      await Promise.all(promises);
+      this.memoryStorage.clear();
       return true;
     } catch (error) {
       console.error('Storage clear error:', error);
@@ -343,13 +306,13 @@ class StorageService {
    */
   async getStorageInfo() {
     try {
-      // For SecureStore, we can't get all keys, so we'll check if our keys exist
-      const authKeys = Object.values(this.keys);
+      // For in-memory storage, we can easily get all keys
+      const allKeys = Array.from(this.memoryStorage.keys());
       const info = {
-        totalKeys: authKeys.length,
-        authKeys: authKeys.length,
-        otherKeys: 0,
-        secureStoreAvailable: this.isSecureStoreAvailable,
+        totalKeys: allKeys.length,
+        authKeys: Object.values(this.keys).filter(key => allKeys.includes(key)).length,
+        otherKeys: allKeys.length - Object.values(this.keys).filter(key => allKeys.includes(key)).length,
+        secureStoreAvailable: false, // In-memory storage is not secure
       };
       return info;
     } catch (error) {

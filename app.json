@@ -59,8 +59,7 @@
           "locationPermission": "Permite que Glotón Urbano use tu ubicación"
         }
       ],
-      "expo-asset",
-      "expo-secure-store"
+      "expo-asset"
     ]
   }
 }
